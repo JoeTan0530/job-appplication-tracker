@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Book = require('../models/Book');
+const Job = require('../models/Job');
 const { generateReturnObj } = require('../models/utilities/general');
 
 // GET all books
@@ -25,27 +25,6 @@ router.post('/', async (req, res) => {
         let params = request.params;
 
         switch (command) {
-            case "getBooksCounts":
-                response = await Book.getBooksCounts(params);
-                break;
-            case "getBookList":
-                response = await Book.getBookList(params);
-                break;
-            case "getBookItem":
-                response = await Book.getBookItem(params);
-                break;
-            case "addBookItem":
-                response = await Book.addBookItem(params);
-                break;
-            case "editBookItem":
-                response = await Book.editBookItem(params);
-                break;
-            case "getStatusList":
-                response = await Book.getStatusList();
-                break;
-            case "removeBookItem":
-                response = await Book.removeBookItem(params);
-                break;
             default:
                 response = generateReturnObj("Error", 1, "", "Invalid command.");
         }

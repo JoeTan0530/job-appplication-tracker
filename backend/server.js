@@ -24,8 +24,7 @@ app.get('/', (req, res) => {
 });
 
 // Routes
-app.use('/api/books', require('./routes/books'));
-app.use('/api/users', require('./routes/users'));
+app.use('/api/jobs', require('./routes/jobs'));
 
 
 // Add error handling middleware
