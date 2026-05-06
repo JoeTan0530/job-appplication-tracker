@@ -1,28 +1,35 @@
 const mongoose = require('mongoose');
 const { 
     generateReturnObj,
-    verifyAndFindByID,
+    verifyIdFormat,
     mapCountObj
 } = require('./utilities/general');
 
 const jobSchema = new mongoose.Schema({
-    position: {
+    role: {
         type: String,
         required: true
     },
-    company: {
+    applied_date: {
+        type: Date, 
+        default:Date.now
+    },
+    company_name: {
         type: String,
         required: true
     },
-    companyRegNum: {
+    company_reg_num: {
         type: String,
         required: true
     },
     job_requirement: {
         type: String,
     },
-    email: {
+    company_email: {
         type: String,
+    },
+    interview_date: {
+        type: Date,
     },
     status: {
         type: String,
@@ -35,5 +42,350 @@ const jobSchema = new mongoose.Schema({
 }, {
     timestamps: true // Adds createdAt and updatedAt automatically
 });
+
+jobSchema.statics.getStatusList = async function(internalUse = false) {
+    const statusList = [
+        {
+            label: 'Self rejected',
+            value: 'user_rejected'
+        },
+        {
+            label: 'Rejected by company',
+            value: 'company_rejected'
+        },
+        {
+            label: 'Application submitted',
+            value: 'submitted'
+        },
+        {
+            label: 'Company responded',
+            value: 'responded'
+        },
+        {
+            label: 'Pending',
+            value: 'pending'
+        },
+        {
+            label: 'Interview in progress',
+            value: 'interviewing'
+        },
+    ];
+
+    if (internalUse) {
+        return statusList;
+    } else {
+        return generateReturnObj("Success", 0, statusList, "");
+    }
+}
+
+jobSchema.statics.verifyStatusValue = async function(inputStatusVal) {
+    const statusList = this.getStatusList(true);
+
+    if (statusList) {
+        let verifiedStatus = false;
+
+        for (const statusVal of statusList) {
+            if (statusVal['value'] === inputStatusVal) {
+                verifiedStatus = true;
+                break;
+            }
+        }
+
+        if (!verifiedStatus) {
+            return generateReturnObj("Error", 1, "", "Invalid status value.");
+        }
+    } else {
+        return generateReturnObj("Error", 2, "", "Unable to verify status value, please contact admin.");
+    }
+}
+
+jobSchema.statics.getJobItem = async function(params) {
+    const {
+        jobID
+    } = params;
+
+    const verifiedJobID = verifyIdFormat(jobID);
+
+    if (verifiedJobID['status'] && verifiedJobID['status'] == "Error") {
+        return verifiedJobID;
+    }
+
+    const jobItemRes = await this.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(verifiedJobID)
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                role: 1,
+                company_name: 1,
+                company_reg_num: 1,
+                job_requirement: 1,
+                company_email: 1,
+                status: 1,
+                remark: 1,
+                applied_date: {
+                    $dateToString: {
+                        format: "%Y-%m-%d %H:%M:%S",
+                        date: "$applied_date"
+                    }
+                },
+                interview_date: {
+                    $dateToString: {
+                        format: "%Y-%m-%d %H:%M:%S",
+                        date: "$interview_date"
+                    }
+                },
+                createdAt: {
+                    $dateToString: {
+                        format: "%Y-%m-%d %H:%M:%S",
+                        date: "$createdAt"
+                    }
+                }
+            }
+        }
+    ]);
+
+    if (jobItemRes) {
+        return generateReturnObj("Success", 0, jobItemRes[0], "");
+    } else {
+        return generateReturnObj("Error", 2, "Unable to retrieve job information.");
+    }
+}
+
+jobSchema.statics.getJobAppList = async function(params) {
+    const {
+        page = 1,
+        limit = 10,
+        status = "",
+    } = params;
+
+    const skip = (page - 1) * limit;
+
+    let matchCondition = {};
+
+    if (status && status != "") {
+        matchCondition.status = status;
+    }
+
+    const jobListRes = await this.aggregate([
+        {
+            $match: matchCondition
+        },
+        {
+            $project: {
+                _id: 0, //This is to tell MongoDB to ignore returning the special "_id" column as it will add to it by it's default.
+                jobID: "$_id",
+                role: 1,
+                applied_date: 1,
+                company_name: 1,
+                company_reg_num: 1,
+                job_requirement: 1,
+                status: 1,
+                createdAt: {
+                    $dateToString: {
+                        format: "%Y-%m-%d %H:%M:%S",
+                        date: "$createdAt"
+                    }
+                }
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        },
+        {
+            $skip: skip
+        },
+        {
+            $limit: limit
+        }
+    ]);
+
+    const jobsPaginationRes = await this.getPagination({listingCondition: matchCondition, page: page, limit: limit});
+
+    if (jobListRes && jobListRes.length > 0) {
+
+        let listingObj = {
+            listing: jobListRes,
+            pagination: jobsPaginationRes
+        }
+
+        return generateReturnObj("Success", 0, listingObj);
+
+    } else {
+        return generateReturnObj("Success", 0, "", "No Result Found");
+    }
+}
+
+jobSchema.statics.getPagination = async function(params) {
+    const {listingCondition, page, limit} = params;
+
+    const paginationRes = await this.aggregate([
+        {
+            $match: listingCondition
+        },
+        {
+            $facet: {
+                totalRecord: [
+                    {$count: "count"}
+                ]
+            }
+        }
+    ]);
+
+    //Default pagination info.
+    let paginationObj = {
+        pageNumber: 1,
+        numRecord: limit,
+        totalRecord: 0,
+        totalPage: 0
+    }
+
+    if (paginationRes) {
+        const totalRecordData = paginationRes[0]['totalRecord'][0]['count'];
+
+        paginationObj = {
+            pageNumber: page,
+            numRecord: limit,
+            totalRecord: totalRecordData,
+            totalPage: Math.ceil(totalRecordData / limit)
+        };
+    }
+
+    return paginationObj;
+}
+
+jobSchema.statics.addJobApplication = async function(params) {
+    const paramData = params;
+
+    const requiredFieldArr = {
+        role: "The role applied cannot be empty.",
+        companyName: "The applied company name cannot be empty",
+        companyRegNum: "The applied company registration number cannnot be empty",
+    };
+
+    if (paramData) {
+        for (let fieldKey in requiredFieldArr) {
+            let tempData = paramData[fieldKey];
+
+            if (!tempData || tempData == "") {
+                return generateReturnObj("Error", 1, "", requiredFieldArr[fieldKey]);
+            }
+        }
+
+        const verifiedStatusRes = await this.verifyStatusValue(paramData['status']);
+
+        if (verifiedStatusRes['status'] && verifiedStatusRes['status'] == "Error") {
+            return verifiedStatusRes;
+        }
+
+        const newJobItem = new this({
+            role: paramData['role'],
+            applied_date: paramData['appliedDate'],
+            company_name: paramData['companyName'],
+            company_reg_num: paramData['companyRegNum'],
+            job_requirement: paramData['jobRequirement'],
+            company_email: paramData['companyEmail'],
+            interview_date: paramData['interviewDate'],
+            status: paramData['status'],
+            remark: paramData['remark']
+        });
+
+        await newJobItem.save();
+
+        return generateReturnObj("Success", 0, "", "Successfully added a new job application");
+    } else {
+        return generateReturnObj("Error", 2, "", "Invalid params.");
+    }
+}
+
+jobSchema.statics.editJobApplication = async function(params) {
+    const paramData = params;
+
+    const requiredFieldArr = {
+        role: "The role applied cannot be empty.",
+        companyName: "The applied company name cannot be empty",
+        companyRegNum: "The applied company registration number cannnot be empty",
+        jobID: "Invalid job application ID.",
+    };
+
+    if (paramData) {
+        if (paramData['jobID']) {
+            // Validate Job ID
+            const verifiedJobID = verifyIdFormat(paramData['jobID']);
+
+            if (verifiedJobID['status'] && verifiedJobID['status'] == "Error") {
+                return verifiedJobID;
+            }
+
+            // Validate required input
+            for (let fieldKey in requiredFieldArr) {
+                let tempData = paramData[fieldKey];
+
+                if (!tempData || tempData == "") {
+                    return generateReturnObj("Error", 1, "", requiredFieldArr[fieldKey]);
+                }
+            }
+
+            // Validate input status
+            const verifiedStatusRes = await this.verifyStatusValue(paramData['status']);
+
+            if (verifiedStatusRes['status'] && verifiedStatusRes['status'] == "Error") {
+                return verifiedStatusRes;
+            }
+
+            const job = await this.findById(verifiedJobID);
+
+            if (job) {
+                // Set new input into the document
+                job.role = paramData['role'];
+                job.applied_date = paramData['appliedDate'];
+                job.company_name = paramData['companyName'];
+                job.company_reg_num = paramData['companyRegNum'];
+                job.job_requirement = paramData['jobRequirement'];
+                job.company_email = paramData['companyEmail'];
+                job.interview_date = paramData['interviewDate'];
+                job.status = paramData['status'];
+                job.remark = paramData['remark'];
+
+                await job.save();
+
+                return generateReturnObj("Success", 0, "", "Successfully updated job application record.");
+            } else {
+                generateReturnObj("Error", 1, "", "Unable to update job application record, please contact admin.");
+            }
+
+        } else {
+            return generateReturnObj("Error", 1, "", "Invalid job application ID.");
+        }
+    } else {
+        return generateReturnObj("Error", 1, "", "Invalid params.");
+    }
+}
+
+jobSchema.statics.removeJobItem = async function(params) {
+    const {
+        jobID
+    } = params;
+
+    // Validate Job ID
+    const verifiedJobID = verifyIdFormat(paramData['jobID']);
+
+    if (verifiedJobID['status'] && verifiedJobID['status'] == "Error") {
+        return verifiedJobID;
+    }
+
+    const deletedItemRes = await this.findByIdAndDelete(verifiedJobID);
+
+    if (deletedItemRes) {
+        return generateReturnObj("Success", 0, "", "Successfully deleted a job application record.");
+    } else {
+        return generateReturnObj("Error", 2, "", "Unable to remove job application record, please contact admin.")
+    }
+}
 
 module.exports = mongoose.model('Job', jobSchema);

@@ -27,7 +27,7 @@ const generateReturnObj = (type, returnCode, dataReturn = "", statusMsg = "") =>
 	return tempObj;
 }
 
-const verifyAndFindByID = (checkingID, customErrorMsg = "Invalid ID format") => {
+const verifyIdFormat = (checkingID, customErrorMsg = "Invalid ID format") => {
 	if (!mongoose.Types.ObjectId.isValid(checkingID)) {
         return generateReturnObj("Error", 1, "", customErrorMsg);
     } else {
@@ -51,6 +51,6 @@ const mapCountObj = (countArray = {}, countKey = "count") => {
 // Export all functions
 module.exports = {
     generateReturnObj,
-    verifyAndFindByID,
+    verifyIdFormat,
     mapCountObj
 };

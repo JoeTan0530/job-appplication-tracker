@@ -25,6 +25,24 @@ router.post('/', async (req, res) => {
         let params = request.params;
 
         switch (command) {
+            case "getStatusList":
+                response = await Job.getStatusList(params);
+                break;
+            case "getJobItem":
+                response = await Job.getJobItem(params);
+                break;
+            case "getJobAppList":
+                response = await Job.getJobAppList(params);
+                break;
+            case "addJobApplication":
+                response = await Job.addJobApplication(params);
+                break;
+            case "editJobApplication":
+                response = await Job.editJobApplication(params);
+                break;
+            case "removeJobItem":
+                response = await Job.removeJobItem(params);
+                break;
             default:
                 response = generateReturnObj("Error", 1, "", "Invalid command.");
         }
