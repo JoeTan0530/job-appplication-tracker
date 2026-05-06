@@ -31,6 +31,9 @@ const jobSchema = new mongoose.Schema({
     interview_date: {
         type: Date,
     },
+    salary: {
+        type: Number
+    },
     status: {
         type: String,
         enum: ['user_rejected', 'company_rejected', 'submitted', 'responded', 'pending', 'interviewing'],
@@ -126,6 +129,7 @@ jobSchema.statics.getJobItem = async function(params) {
                 company_email: 1,
                 status: 1,
                 remark: 1,
+                salary: 1,
                 applied_date: {
                     $dateToString: {
                         format: "%Y-%m-%d %H:%M:%S",
@@ -183,6 +187,7 @@ jobSchema.statics.getJobAppList = async function(params) {
                 company_name: 1,
                 company_reg_num: 1,
                 job_requirement: 1,
+                salary: 1,
                 status: 1,
                 createdAt: {
                     $dateToString: {
@@ -291,6 +296,7 @@ jobSchema.statics.addJobApplication = async function(params) {
             job_requirement: paramData['jobRequirement'],
             company_email: paramData['companyEmail'],
             interview_date: paramData['interviewDate'],
+            salary: paramData['salary'],
             status: paramData['status'],
             remark: paramData['remark']
         });
@@ -349,6 +355,7 @@ jobSchema.statics.editJobApplication = async function(params) {
                 job.job_requirement = paramData['jobRequirement'];
                 job.company_email = paramData['companyEmail'];
                 job.interview_date = paramData['interviewDate'];
+                job.salary = paramData['salary'];
                 job.status = paramData['status'];
                 job.remark = paramData['remark'];
 
