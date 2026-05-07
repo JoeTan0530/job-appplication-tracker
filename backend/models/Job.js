@@ -22,6 +22,9 @@ const jobSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    location: {
+        type: String,
+    },
     job_requirement: {
         type: String,
     },
@@ -82,7 +85,7 @@ jobSchema.statics.getStatusList = async function(internalUse = false) {
 }
 
 jobSchema.statics.verifyStatusValue = async function(inputStatusVal) {
-    const statusList = this.getStatusList(true);
+    const statusList = await this.getStatusList(true);
 
     if (statusList) {
         let verifiedStatus = false;
@@ -96,6 +99,8 @@ jobSchema.statics.verifyStatusValue = async function(inputStatusVal) {
 
         if (!verifiedStatus) {
             return generateReturnObj("Error", 1, "", "Invalid status value.");
+        } else {
+            return true;
         }
     } else {
         return generateReturnObj("Error", 2, "", "Unable to verify status value, please contact admin.");
@@ -109,7 +114,7 @@ jobSchema.statics.getJobItem = async function(params) {
 
     const verifiedJobID = verifyIdFormat(jobID);
 
-    if (verifiedJobID['status'] && verifiedJobID['status'] == "Error") {
+    if (verifiedJobID['status'] && verifiedJobID['status'] == "error") {
         return verifiedJobID;
     }
 
@@ -126,6 +131,7 @@ jobSchema.statics.getJobItem = async function(params) {
                 company_name: 1,
                 company_reg_num: 1,
                 job_requirement: 1,
+                location: 1,
                 company_email: 1,
                 status: 1,
                 remark: 1,
@@ -152,7 +158,7 @@ jobSchema.statics.getJobItem = async function(params) {
         }
     ]);
 
-    if (jobItemRes) {
+    if (jobItemRes && jobItemRes.length > 0) {
         return generateReturnObj("Success", 0, jobItemRes[0], "");
     } else {
         return generateReturnObj("Error", 2, "Unable to retrieve job information.");
@@ -250,7 +256,7 @@ jobSchema.statics.getPagination = async function(params) {
         totalPage: 0
     }
 
-    if (paginationRes) {
+    if (paginationRes & paginationRes[0]['totalRecord'] && paginationRes[0]['totalRecord'].length > 0) {
         const totalRecordData = paginationRes[0]['totalRecord'][0]['count'];
 
         paginationObj = {
@@ -284,7 +290,7 @@ jobSchema.statics.addJobApplication = async function(params) {
 
         const verifiedStatusRes = await this.verifyStatusValue(paramData['status']);
 
-        if (verifiedStatusRes['status'] && verifiedStatusRes['status'] == "Error") {
+        if (verifiedStatusRes['status'] && verifiedStatusRes['status'] == "error") {
             return verifiedStatusRes;
         }
 
@@ -293,10 +299,11 @@ jobSchema.statics.addJobApplication = async function(params) {
             applied_date: paramData['appliedDate'],
             company_name: paramData['companyName'],
             company_reg_num: paramData['companyRegNum'],
-            job_requirement: paramData['jobRequirement'],
-            company_email: paramData['companyEmail'],
+            job_requirement: (paramData['jobRequirement'] && paramData['jobRequirement'] != "") ? paramData['jobRequirement'] : "No Information",
+            location: (paramData['location'] && paramData['location'] != "") ? paramData['location'] : "No Information",
+            company_email: (paramData['companyEmail'] && paramData['companyEmail'] != "") ? paramData['companyEmail'] : "No Information",
             interview_date: paramData['interviewDate'],
-            salary: paramData['salary'],
+            salary: paramData['salary'] ? paramData['salary'] : 0,
             status: paramData['status'],
             remark: paramData['remark']
         });
@@ -324,7 +331,7 @@ jobSchema.statics.editJobApplication = async function(params) {
             // Validate Job ID
             const verifiedJobID = verifyIdFormat(paramData['jobID']);
 
-            if (verifiedJobID['status'] && verifiedJobID['status'] == "Error") {
+            if (verifiedJobID['status'] && verifiedJobID['status'] == "error") {
                 return verifiedJobID;
             }
 
@@ -340,7 +347,7 @@ jobSchema.statics.editJobApplication = async function(params) {
             // Validate input status
             const verifiedStatusRes = await this.verifyStatusValue(paramData['status']);
 
-            if (verifiedStatusRes['status'] && verifiedStatusRes['status'] == "Error") {
+            if (verifiedStatusRes['status'] && verifiedStatusRes['status'] == "error") {
                 return verifiedStatusRes;
             }
 
@@ -352,8 +359,9 @@ jobSchema.statics.editJobApplication = async function(params) {
                 job.applied_date = paramData['appliedDate'];
                 job.company_name = paramData['companyName'];
                 job.company_reg_num = paramData['companyRegNum'];
-                job.job_requirement = paramData['jobRequirement'];
-                job.company_email = paramData['companyEmail'];
+                job.job_requirement = (paramData['jobRequirement'] && paramData['jobRequirement'] != "") ? paramData['jobRequirement'] : "No information";
+                job.location = (paramData['location'] && paramData['location'] != "") ? paramData['location'] : "No Information";
+                job.company_email = (paramData['companyEmail'] && paramData['companyEmail'] != "") ? paramData['companyEmail'] : "No information";
                 job.interview_date = paramData['interviewDate'];
                 job.salary = paramData['salary'];
                 job.status = paramData['status'];
@@ -363,7 +371,7 @@ jobSchema.statics.editJobApplication = async function(params) {
 
                 return generateReturnObj("Success", 0, "", "Successfully updated job application record.");
             } else {
-                generateReturnObj("Error", 1, "", "Unable to update job application record, please contact admin.");
+                return generateReturnObj("Error", 1, "", "Unable to update job application record, please contact admin.");
             }
 
         } else {
@@ -380,9 +388,9 @@ jobSchema.statics.removeJobItem = async function(params) {
     } = params;
 
     // Validate Job ID
-    const verifiedJobID = verifyIdFormat(paramData['jobID']);
+    const verifiedJobID = verifyIdFormat(jobID);
 
-    if (verifiedJobID['status'] && verifiedJobID['status'] == "Error") {
+    if (verifiedJobID['status'] && verifiedJobID['status'] == "error") {
         return verifiedJobID;
     }
 
@@ -395,4 +403,4 @@ jobSchema.statics.removeJobItem = async function(params) {
     }
 }
 
-module.exports = mongoose.model('Job', jobSchema);
+module.exports = mongoose.model('Jobs', jobSchema);
