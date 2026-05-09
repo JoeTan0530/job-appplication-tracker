@@ -52,16 +52,16 @@ const jobSchema = new mongoose.Schema({
 jobSchema.statics.getStatusList = async function(internalUse = false) {
     const statusList = [
         {
+            label: 'Application submitted',
+            value: 'submitted'
+        },
+        {
             label: 'Self rejected',
             value: 'user_rejected'
         },
         {
             label: 'Rejected by company',
             value: 'company_rejected'
-        },
-        {
-            label: 'Application submitted',
-            value: 'submitted'
         },
         {
             label: 'Company responded',
@@ -77,7 +77,7 @@ jobSchema.statics.getStatusList = async function(internalUse = false) {
         },
     ];
 
-    if (internalUse) {
+    if (internalUse === true) {
         return statusList;
     } else {
         return generateReturnObj("Success", 0, statusList, "");
@@ -189,7 +189,12 @@ jobSchema.statics.getJobAppList = async function(params) {
                 _id: 0, //This is to tell MongoDB to ignore returning the special "_id" column as it will add to it by it's default.
                 jobID: "$_id",
                 role: 1,
-                applied_date: 1,
+                applied_date: {
+                    $dateToString: {
+                        format: "%Y-%m-%d %H:%M:%S",
+                        date: "$applied_date"
+                    }
+                },
                 company_name: 1,
                 company_reg_num: 1,
                 job_requirement: 1,
