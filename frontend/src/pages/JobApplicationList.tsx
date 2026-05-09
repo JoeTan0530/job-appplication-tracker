@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Col, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 // Import the FontAwesomeIcon component
@@ -9,7 +9,7 @@ import { faEye, faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-s
 import CustomTable from "../components/CustomTable.tsx";
 import { showSystemPopup } from "../services/CustomSystemPopupService.js";
 import { showConfirmModal } from "../services/CustomConfirmModalService.js";
-import { formatDateDDMMYYYY } from "../utils/general.js";
+import { formatDateDDMMYYYY, formatNumberWithThousandsSeparator } from "../utils/general.js";
 import { getJobAppList, getStatusList, removeJobItem } from "../services/JobApplicationService.js";
 
 const JobApplicationList: React.FC = () => {
@@ -63,7 +63,6 @@ const JobApplicationList: React.FC = () => {
 
   const columns = useMemo(
     () => [
-      { header: "ID", accessor: "jobID" },
       { header: "Role", accessor: "role" },
       {
         header: "Applied",
@@ -79,7 +78,10 @@ const JobApplicationList: React.FC = () => {
           </div>
         ),
       },
-      { header: "Salary", accessor: "salary" },
+      {
+        header: "Salary",
+        render: (row) => formatNumberWithThousandsSeparator(row.salary) || row.salary || "-",
+      },
       {
         header: "Status",
         render: (row) => statusMap[row.status] || row.status || "-",
@@ -95,6 +97,8 @@ const JobApplicationList: React.FC = () => {
             <Button
               variant="tertiary"
               className="me-1"
+              title="View"
+              aria-label="View job application"
               onClick={() => navigate(`/jobs/${row.jobID}`)}
             >
               <FontAwesomeIcon icon={faEye} className="btn-icon" />
@@ -102,11 +106,18 @@ const JobApplicationList: React.FC = () => {
             <Button
               variant="tertiary"
               className="me-1"
+              title="Edit"
+              aria-label="Edit job application"
               onClick={() => navigate(`/jobs/${row.jobID}/edit`)}
             >
               <FontAwesomeIcon icon={faPenToSquare} className="btn-icon" />
             </Button>
-            <Button variant="tertiary" onClick={() => triggerDelete(row.jobID)}>
+            <Button
+              variant="tertiary"
+              title="Delete"
+              aria-label="Delete job application"
+              onClick={() => triggerDelete(row.jobID)}
+            >
               <FontAwesomeIcon icon={faTrash} className="btn-icon" />
             </Button>
           </div>
@@ -119,10 +130,10 @@ const JobApplicationList: React.FC = () => {
   const listCss = useMemo(
     () => ({
       header: [
-        { index: 9, css: { textAlign: "right" } },
+        { index: 8, css: { textAlign: "right" } },
       ],
       listing: [
-        { index: 9, css: { textAlign: "right" } },
+        { index: 8, css: { textAlign: "right" } },
       ],
     }),
     []
@@ -130,18 +141,18 @@ const JobApplicationList: React.FC = () => {
 
   return (
     <>
-      <div className="d-flex flex-column flex-md-row justify-content-between mb-3">
-        <div>
+      <Row className="mb-3 align-items-end">
+        <Col xs={12} md={9} xl={10}>
           <h1 className="page-title">Job applications</h1>
-          <h3 className="page-sub-title">Track your pipeline in one place</h3>
-        </div>
-        <div className="d-flex d-md-block justify-content-end mt-3 mt-md-0">
-          <Button variant="primary" onClick={() => navigate("/jobs/new")}>
+          <h3 className="page-sub-title mb-0">Track your pipeline in one place</h3>
+        </Col>
+        <Col xs={12} md={3} xl={2} className="mt-3 mt-md-0">
+          <Button variant="primary" className="w-100" onClick={() => navigate("/jobs/new")}>
             <FontAwesomeIcon icon={faPlus} className="btn-icon" />
             <span>Add application</span>
           </Button>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       <div className="mt-3">
         <CustomTable

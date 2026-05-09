@@ -8,6 +8,7 @@ import { faAnglesLeft, faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 import CustomSelect from "../components/CustomSelect.tsx";
 import { showSystemPopup } from "../services/CustomSystemPopupService.js";
 import { addJobApplication, editJobApplication, getJobItem, getStatusList } from "../services/JobApplicationService.js";
+import { formatDateDDMMYYYY, formatDateForInitialInput } from "../utils/general.js";
 
 type JobApplicationFormMode = "add" | "edit";
 
@@ -19,13 +20,13 @@ const snakeToForm = (job) => {
   if (!job) return {};
   return {
     role: job.role || "",
-    appliedDate: job.applied_date || "",
+    appliedDate: (job.applied_date ? formatDateForInitialInput(job.applied_date) : "") || "",
     companyName: job.company_name || "",
     companyRegNum: job.company_reg_num || "",
     jobRequirement: job.job_requirement || "",
     location: job.location || "",
     companyEmail: job.company_email || "",
-    interviewDate: job.interview_date || "",
+    interviewDate: (job.interview_date ? formatDateForInitialInput(job.interview_date) : "") || "",
     salary: job.salary || "",
     status: job.status || "",
     remark: job.remark || "",
@@ -73,6 +74,7 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ mode }) => {
     if (!jobID) return;
     getJobItem(jobID, (data) => {
       const item = data?.item || data || null;
+      console.log("test: ", snakeToForm(item));
       setFormInputData((prev) => ({ ...prev, ...snakeToForm(item) }));
     });
   }, [isEdit, jobID]);
@@ -116,46 +118,57 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ mode }) => {
 
   return (
     <>
-      <div className="d-flex flex-column flex-md-row justify-content-between mb-3">
-        <div className="d-flex align-items-center">
-          <Button variant="secondary" className="me-2" onClick={() => navigate(isEdit ? `/jobs/${jobID}` : "/")}>
-            <FontAwesomeIcon icon={faAnglesLeft} className="btn-icon" />
-            Back
-          </Button>
-          <div>
-            <h1 className="page-title mb-0">{isEdit ? "Edit application" : "Add application"}</h1>
-            <h3 className="page-sub-title mb-0">
-              {isEdit ? `jobID: ${jobID}` : "Create a new job application record"}
-            </h3>
-          </div>
-        </div>
-        <div className="d-flex d-md-block justify-content-end mt-3 mt-md-0">
-          <Button variant="primary" onClick={triggerSave} disabled={!requiredOk}>
+      <div className="mb-2">
+        <button
+          type="button"
+          className="sidebar-btn back-btn"
+          onClick={() => navigate(isEdit ? `/jobs/${jobID}` : "/")}
+        >
+          <FontAwesomeIcon icon={faAnglesLeft} className="btn-icon" />
+          Back
+        </button>
+      </div>
+
+      <Row className="justify-content-between align-items-end mb-3">
+        <Col xs={12} md={10} xl={11}>
+          <h1 className="page-title mb-0">{isEdit ? "Edit application" : "Add application"}</h1>
+          <h3 className="page-sub-title mb-0">
+            {isEdit ? `jobID: ${jobID}` : "Create a new job application record"}
+          </h3>
+        </Col>
+        <Col xs={12} md={2} xl={1} className="mt-3 mt-md-0">
+          <Button variant="primary" className="w-100" onClick={triggerSave} disabled={!requiredOk}>
             <FontAwesomeIcon icon={faFloppyDisk} className="btn-icon" />
             <span>Save</span>
           </Button>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       <div className="form-container">
         <Row>
           <Col xs={12} md={6}>
             <Form.Group className="form-group" controlId="role">
-              <Form.Label>Role *</Form.Label>
+              <Form.Label>
+                Role <span className="required-asterisk">*</span>
+              </Form.Label>
               <Form.Control type="text" value={formInputData.role} onChange={updateFormInput} />
               {errMsg?.role && <div className="form-error-msg">{errMsg.role}</div>}
             </Form.Group>
           </Col>
           <Col xs={12} md={6}>
             <Form.Group className="form-group" controlId="companyName">
-              <Form.Label>Company name *</Form.Label>
+              <Form.Label>
+                Company name <span className="required-asterisk">*</span>
+              </Form.Label>
               <Form.Control type="text" value={formInputData.companyName} onChange={updateFormInput} />
               {errMsg?.companyName && <div className="form-error-msg">{errMsg.companyName}</div>}
             </Form.Group>
           </Col>
           <Col xs={12} md={6}>
             <Form.Group className="form-group" controlId="companyRegNum">
-              <Form.Label>Company reg no. *</Form.Label>
+              <Form.Label>
+                Company reg no. <span className="required-asterisk">*</span>
+              </Form.Label>
               <Form.Control type="text" value={formInputData.companyRegNum} onChange={updateFormInput} />
               {errMsg?.companyRegNum && <div className="form-error-msg">{errMsg.companyRegNum}</div>}
             </Form.Group>
@@ -167,7 +180,8 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ mode }) => {
                 selectID="status"
                 selectOptions={statusOptions}
                 currentValue={formInputData.status}
-                addDefaultAllOption={false}
+                addDefaultAllOption={true}
+                customDefaultLabel={"Please select an option"}
                 handleSelectValue={(event) => updateSelect("status", event.target.value)}
               />
             </Form.Group>

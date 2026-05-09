@@ -28,7 +28,8 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
 		getInputDataKey = "id",
 		currentValue = "",
 		customSelectRef,
-		addDefaultAllOption = false
+		addDefaultAllOption = false,
+		customDefaultLabel = "All"
 	} = props;
 
 	let optionList = selectOptions ? selectOptions : [{ value: "", label: "" }];
@@ -46,11 +47,11 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
 	useEffect(() => {
 		if (addDefaultAllOption) {
 			let tempDefaultOption = {
-				label: "All",
+				label: customDefaultLabel,
 				value: ""
 			}
 
-			if (optionList[0]['value'] !== tempDefaultOption.value || (optionList[0]['value'] === tempDefaultOption && optionList[0]["label"] !== tempDefaultOption.label)) {
+			if (optionList.length > 0 && (optionList[0]['value'] !== tempDefaultOption.value || (optionList[0]['value'] === tempDefaultOption && optionList[0]["label"] !== tempDefaultOption.label))) {
 				optionList.unshift(tempDefaultOption);
 			}
 		}

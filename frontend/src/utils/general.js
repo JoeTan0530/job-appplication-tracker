@@ -181,6 +181,26 @@ export const formatDateDDMMYYYY = (inputDate) => {
 	return `${day}/${month}/${year}`;
 };
 
+export const formatDateForInitialInput = (inputDate) => {
+	if (!inputDate) return "";
+
+	const [date, time] = inputDate.split(" ");
+
+	return date;
+}
+
+export const formatNumberWithThousandsSeparator = (inputVal) => {
+	if (inputVal === null || inputVal === undefined || inputVal === "") return "";
+
+	const rawStr = String(inputVal).replace(/,/g, "").trim();
+	if (!rawStr) return "";
+
+	const num = Number(rawStr);
+	if (Number.isNaN(num)) return String(inputVal);
+
+	return new Intl.NumberFormat("en-US").format(num);
+};
+
 export const PasswordToggle = ({ passwordRef, initial = false }) => {
   const [isOn, setIsOn] = useState(initial);
 

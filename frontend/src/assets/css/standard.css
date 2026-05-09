@@ -1,15 +1,15 @@
 :root {
 	/*theme-color*/
-	--primary-color: #F5F9FF;
+	--primary-color: #F5FFF9;
 	--secondary-color: #FFFFFF;
-	--tertiary-color: #2563EB;
+	--tertiary-color: #16A34A;
 	--error-color: #c51017;
 	--warning-color: #ffe139;
 	--success-color: #4dff2c; 
-	--hyperlink-text-color: #000000;
+	--hyperlink-text-color: var(--tertiary-color);
 
 	/*webpage*/
-	--primary-bg-color: #F5F9FF;
+	--primary-bg-color: #F5FFF9;
 	--secondary-bg-color: #ffffff;
 	--primary-text-color: #000000;
 	--secondary-text-color: #64748B;
@@ -34,8 +34,8 @@
 	--btn-secondary-bg-color: #FFFFFF;
 	--btn-tertiary-bg-color: '';
 	--btn-disabled-bg-color: #d3d3d3;
-	--btn-onHover-primary-bg-color: #1D4ED8;
-	--btn-onHover-secondary-bg-color: #f1f5f9;
+	--btn-onHover-primary-bg-color: #15803D;
+	--btn-onHover-secondary-bg-color: #ECFDF5;
 	--btn-onHover-tertiary-bg-color: '';
 	--btn-primary-text-color: #ffffff;
 	--btn-secondary-text-color: #000000;
@@ -72,9 +72,9 @@
 	--header-bg-color: #ffffff;
 	--header-text-size: var(--sm-text-size);
 	--header-text-color: var(--primary-text-color);
-	--header-border: 1px solid #E2E8F0;
+	--header-border: 1px solid #DCFCE7;
 	--header-box-shadow: "";
-	--header-menu-onHover-color: #f1f5f9;
+	--header-menu-onHover-color: #ECFDF5;
 	--header-menu-onActive-color: #000000;
 	--header-menu-onActive-border: 3px solid var(--tertiary-color);
 	--header-menu-dropdown-text-color: #8b93a4;
@@ -84,7 +84,7 @@
 	--sidebar-width: 80%;
 	--sidebar-text-size: var(--sm-text-size);
 	--sidebar-text-color: var(--primary-text-color);
-	--sidebar-btn-onHover-color: #f1f5f9;
+	--sidebar-btn-onHover-color: #ECFDF5;
 
 	/*footer*/
 	--footer-bg-color: '';
@@ -98,7 +98,7 @@
 	--system-popup-bg-color: #FFFFFF;
 	--system-popup-bg-color-warning: #F2E6AC;
 	--system-popup-bg-color-error: #F7ABAB;
-	--system-popup-border: 1px solid #EDEDED;
+	--system-popup-border: 1px solid #DCFCE7;
 	--system-popup-border-radius: 7px;
 	--system-popup-border-color-warning: #FCEB56;
 	--system-popup-border-color-error: #F74848;
@@ -107,18 +107,18 @@
 	--system-popup-box-shadow-error: 0px 0px 9px -3px rgba(247,72,72,0.60);
 
 	/* Table */
-	--table-header-bg: #F5F5F5;
-	--table-header-border: 1px solid #000000;
+	--table-header-bg: #ECFDF5;
+	--table-header-border: 1px solid #86EFAC;
 	--table-header-font-size: var(--md-text-size);
 	--table-header-font-color: var(--primary-text-color);
 	--table-header-font-weight: var(--default-font-weight-thick);
 	--table-listing-bg-primary: transparent;
-	--table-listing-bg-secondary: #F5F5F5;
-	--table-listing-border: 1px solid #000000;
+	--table-listing-bg-secondary: #F0FDF4;
+	--table-listing-border: 1px solid #DCFCE7;
 	--table-listing-font-size: var(--sm-text-size);
 	--table-listing-font-color: var(--primary-text-color);
 	--table-listing-font-weight: var(--default-font-weight-thin);
-	--table-listing-bg-onHover: #EDEDED;
+	--table-listing-bg-onHover: #DCfce7;
 	--table-listing-border-radius: 10px;
 	--table-box-shadow: 0px 0px 4px -1px rgba(0,0,0,0.75);
 	--table-listing-outer-border-radius: 10px;
@@ -236,6 +236,10 @@ body {
 	color: var(--primary-text-color) !important;
 	font-size: var(--input-label-size) !important;
 	font-weight: var(--default-font-weight-thick);
+}
+
+.required-asterisk {
+	color: var(--error-color);
 }
 
 .form-control {
@@ -585,6 +589,18 @@ a.header-logo-anchor div {
 	padding: 0.5rem 0.5rem;
 }
 
+/* Mobile sidebar toggle button */
+button.header-btn.sidebar-btn {
+	background: transparent;
+	border: none;
+	line-height: 1;
+}
+
+button.header-btn.sidebar-btn:focus {
+	outline: none;
+	box-shadow: none;
+}
+
 .header-icon {
 	font-size: 20px;
 }
@@ -651,6 +667,25 @@ a.header-logo-anchor div {
 	background-color: var(--sidebar-btn-onHover-color);
 }
 
+/* Back button styling (match sidebar button style) */
+button.sidebar-btn.back-btn {
+	background: transparent;
+	border: none;
+	padding: 0.25rem 0.5rem;
+	line-height: 1.2;
+	border-radius: 6px;
+	text-align: left;
+}
+
+button.sidebar-btn.back-btn:hover {
+	background-color: var(--sidebar-btn-onHover-color);
+}
+
+button.sidebar-btn.back-btn:focus {
+	outline: none;
+	box-shadow: none;
+}
+
 .sidebar-btn:last-child {
 	margin-bottom: unset;
 }
@@ -680,6 +715,23 @@ a.header-logo-anchor div {
 
 .sidebar-close-btn {
 	display: inline-block;
+}
+
+button.sidebar-close-btn {
+	background: transparent;
+	border: none;
+	padding: 0.25rem 0.5rem;
+	line-height: 1;
+	border-radius: 6px;
+}
+
+button.sidebar-close-btn:hover {
+	background-color: var(--sidebar-btn-onHover-color);
+}
+
+button.sidebar-close-btn:focus {
+	outline: none;
+	box-shadow: none;
 }
 
 .sidebar-close-btn-icon {
