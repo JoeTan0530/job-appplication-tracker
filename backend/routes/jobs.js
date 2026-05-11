@@ -43,6 +43,9 @@ router.post('/', async (req, res) => {
             case "removeJobItem":
                 response = await Job.removeJobItem(params);
                 break;
+            case "sendNotifEmail":
+                response = await Job.sendNotifEmail(params);
+                break;
             default:
                 response = generateReturnObj("Error", 1, "", "Invalid command.");
         }

@@ -5,6 +5,10 @@ const {
     mapCountObj
 } = require('./utilities/general');
 
+const {
+    sendEmailWithResend
+} = require('./utilities/emailSendingService');
+
 const jobSchema = new mongoose.Schema({
     role: {
         type: String,
@@ -161,7 +165,7 @@ jobSchema.statics.getJobItem = async function(params) {
     if (jobItemRes && jobItemRes.length > 0) {
         return generateReturnObj("Success", 0, jobItemRes[0], "");
     } else {
-        return generateReturnObj("Error", 2, "Unable to retrieve job information.");
+        return generateReturnObj("Error", 2, "", "Unable to retrieve job information.");
     }
 }
 
@@ -406,6 +410,34 @@ jobSchema.statics.removeJobItem = async function(params) {
     } else {
         return generateReturnObj("Error", 2, "", "Unable to remove job application record, please contact admin.")
     }
+}
+
+jobSchema.statics.sendNotifEmail = async function(params) {
+    const paramData = params;
+
+    const requiredFieldArr = {
+        subject: "Subject field cannot be empty.",
+        description: "Description cannot be empty.",
+        receiver: "Receiver cannot be empty."
+    };
+
+    if (paramData) {
+        for (let fieldKey in requiredFieldArr) {
+            let tempData = paramData[fieldKey];
+
+            if (!tempData || tempData == "") {
+                return generateReturnObj("Error", 1, "", requiredFieldArr[fieldKey]);
+            }
+        }
+
+        const sendEmailRes = await sendEmailWithResend(paramData['receiver'], paramData['subject'], paramData['description']);
+
+        return sendEmailRes;
+    } else {
+        return generateReturnObj("Error", 2, "", "Invalid params.");
+    }
+
+    // sendEmailWithResend
 }
 
 module.exports = mongoose.model('Jobs', jobSchema);
