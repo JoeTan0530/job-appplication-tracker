@@ -6,6 +6,7 @@ const {
 } = require('./utilities/general');
 
 const {
+    sendEmailTemplate,
     sendEmailWithResend
 } = require('./utilities/emailSendingService');
 
@@ -413,31 +414,61 @@ jobSchema.statics.removeJobItem = async function(params) {
 }
 
 jobSchema.statics.sendNotifEmail = async function(params) {
-    const paramData = params;
+    const { jobID } = params;
 
-    const requiredFieldArr = {
-        subject: "Subject field cannot be empty.",
-        description: "Description cannot be empty.",
-        receiver: "Receiver cannot be empty."
-    };
-
-    if (paramData) {
-        for (let fieldKey in requiredFieldArr) {
-            let tempData = paramData[fieldKey];
-
-            if (!tempData || tempData == "") {
-                return generateReturnObj("Error", 1, "", requiredFieldArr[fieldKey]);
-            }
-        }
-
-        const sendEmailRes = await sendEmailWithResend(paramData['receiver'], paramData['subject'], paramData['description']);
-
-        return sendEmailRes;
-    } else {
-        return generateReturnObj("Error", 2, "", "Invalid params.");
+    if (!jobID || jobID == "") {
+        return generateReturnObj("Error", 2, "", "Unable to retrieve job ID, please contact admin to continue.")
     }
 
-    // sendEmailWithResend
+    const jobItemRes = await this.getJobItem({jobID: jobID});
+
+    if (jobItemRes['status'] && jobItemRes['status'] == "error") {
+        return jobItemRes;
+    }
+
+    const jobData = jobItemRes['data'];
+
+    const receiver = process.env.RECEIVER_EMAIL;
+    const subject = `Interview reminder for at ${jobData['company_name']}.`;
+
+    let interviewDate = "-";
+
+    if (jobData['interview_date'] && typeof jobData['interview_date'] == "string") {
+        let tempDate = jobData['interview_date'].split(' ')[0];
+        let tempDateSub = tempDate.split('-');
+
+        interviewDate = `${tempDateSub[tempDateSub.length - 1]}/${tempDateSub[1]}/${tempDateSub[0]}`;
+    }
+
+    const description = `
+        <html>
+            <div style="margin-bottom: 2px;">
+                <p>Please be reminded you have an upcoming interview for:</p>
+            </div>
+            <div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td style="width: 120px;">Role: </td>
+                            <td><b>${jobData['role'] ? jobData['role'] : "-"}</b></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 120px;">Company Name: </td>
+                            <td><b>${jobData['company_name'] ? jobData['company_name'] : "-"}</b></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 120px;">Interview date: </td>
+                            <td><b>${interviewDate}</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </html>
+    `;
+
+    const sendEmailRes = await sendEmailTemplate(subject, description, receiver);
+
+    return sendEmailRes;
 }
 
 module.exports = mongoose.model('Jobs', jobSchema);

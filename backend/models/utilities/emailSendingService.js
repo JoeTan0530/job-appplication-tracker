@@ -6,6 +6,34 @@ const {
 
 const resend = new Resend(process.env.EMAIL_API);
 
+const sendEmailTemplate = async (subject = "", description = "", receiver = []) => {
+	const paramData = {
+		subject: subject,
+		description: description,
+		receiver: receiver
+	};
+
+	const requiredFieldArr = {
+        subject: "Subject field cannot be empty.",
+        description: "Description cannot be empty.",
+        receiver: "Receiver cannot be empty."
+    };
+
+    for (let fieldKey in requiredFieldArr) {
+        let tempData = paramData[fieldKey];
+
+        if ((!tempData || tempData == "") || (fieldKey == "receiver" && tempData.length <= 0)) {
+            return generateReturnObj("Error", 1, "", requiredFieldArr[fieldKey]);
+        }
+    }
+
+    if (!Array.isArray(paramData['receiver']) && typeof paramData['receiver'] == "string") {
+    	paramData['receiver'] = [paramData['receiver']];
+    }
+
+    return await sendEmailWithResend(paramData['receiver'], paramData['subject'], paramData['description']);
+}
+
 const sendEmailWithResend = async (receiver = [], emailSubject = "", emailHtml = "", sender = "Joe Tan <joetan@custom-dev.biz>") => {
 
 	const { data, error } = await resend.emails.send({
@@ -23,5 +51,6 @@ const sendEmailWithResend = async (receiver = [], emailSubject = "", emailHtml =
 }
 
 module.exports = {
+	sendEmailTemplate,
 	sendEmailWithResend
 };
