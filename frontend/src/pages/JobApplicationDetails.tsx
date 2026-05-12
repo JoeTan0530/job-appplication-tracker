@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Button, Col, Row, Spinner } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAnglesLeft, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faAnglesLeft, faPenToSquare, faBell } from "@fortawesome/free-solid-svg-icons";
 
-import { getJobItem, getStatusList } from "../services/JobApplicationService.js";
+import { getJobItem, getStatusList, sendEmailNotification } from "../services/JobApplicationService.js";
 import { formatDateDDMMYYYY, formatNumberWithThousandsSeparator } from "../utils/general.js";
+import { showSystemPopup } from "../services/CustomSystemPopupService.js";
 
 const JobApplicationDetails: React.FC = () => {
   const { jobID } = useParams();
@@ -45,6 +46,12 @@ const JobApplicationDetails: React.FC = () => {
       setIsLoading(false);
     });
   }, [statusMap, jobID]);
+
+  const triggerNotification = useCallback(async () => {
+    sendEmailNotification(jobID, () => {
+      showSystemPopup("Email notification send, please check your inbox.", "success");
+    });
+  })
 
   if (isLoading) {
     return (
@@ -133,12 +140,16 @@ const JobApplicationDetails: React.FC = () => {
       </div>
 
       <Row className="justify-content-between align-items-end mb-3">
-        <Col xs={12} md={10} xl={11}>
+        <Col xs={12} md={8} lg={9}>
           <h1 className="page-title mb-0">Application details</h1>
           <h3 className="page-sub-title mb-0">jobID: {jobID}</h3>
         </Col>
-        <Col xs={12} md={2} xl={1} className="mt-3 mt-md-0">
-          <Button variant="primary" className="w-100" onClick={() => navigate(`/jobs/${jobID}/edit`)}>
+        <Col xs={12} md={4} lg={3} className="d-flex justify-content-center justify-content-md-end align-items-end mt-3 mt-md-0">
+          <Button variant="primary" className="me-2" onClick={() => triggerNotification()}>
+            <FontAwesomeIcon icon={faBell} className="btn-icon" />
+            <span>Notify</span>
+          </Button>
+          <Button variant="primary" onClick={() => navigate(`/jobs/${jobID}/edit`)}>
             <FontAwesomeIcon icon={faPenToSquare} className="btn-icon" />
             <span>Edit</span>
           </Button>

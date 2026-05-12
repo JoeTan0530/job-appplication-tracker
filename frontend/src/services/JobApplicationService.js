@@ -78,3 +78,17 @@ export const removeJobItem = (jobID, callback) => {
   apiCaller("POST", params, callback);
 };
 
+export const sendEmailNotification = (jobID, callback) => {
+  const params = {
+    url: getJobApiUrl(),
+    urlParams: {
+      command: "sendNotifEmail",
+      params: {
+        jobID,
+      },
+    },    
+  }
+
+  apiCaller("POST", params, callback);
+}
+

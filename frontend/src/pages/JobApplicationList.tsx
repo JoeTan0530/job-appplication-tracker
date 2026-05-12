@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 
 // Import the FontAwesomeIcon component
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faPenToSquare, faPlus, faTrash, faBell } from "@fortawesome/free-solid-svg-icons";
 
 import CustomTable from "../components/CustomTable.tsx";
 import { showSystemPopup } from "../services/CustomSystemPopupService.js";
 import { showConfirmModal } from "../services/CustomConfirmModalService.js";
 import { formatDateDDMMYYYY, formatNumberWithThousandsSeparator } from "../utils/general.js";
-import { getJobAppList, getStatusList, removeJobItem } from "../services/JobApplicationService.js";
+import { getJobAppList, getStatusList, removeJobItem, sendEmailNotification } from "../services/JobApplicationService.js";
 
 const JobApplicationList: React.FC = () => {
   const navigate = useNavigate();
@@ -61,6 +61,12 @@ const JobApplicationList: React.FC = () => {
     });
   }, [refreshList]);
 
+  const triggerNotification = useCallback(async (jobID) => {
+    sendEmailNotification(jobID, () => {
+      showSystemPopup("Email notification sent, please check your inbox.", "success");
+    });
+  }, []);
+
   const columns = useMemo(
     () => [
       { header: "Role", accessor: "role" },
@@ -94,6 +100,15 @@ const JobApplicationList: React.FC = () => {
         header: "Actions",
         render: (row) => (
           <div className="d-flex justify-content-end">
+            <Button
+              variant="tertiary"
+              className="me-1"
+              title="Notify"
+              aria-label="Send email notification"
+              onClick={() => triggerNotification(row.jobID)}
+            >
+              <FontAwesomeIcon icon={faBell} className="btn-icon" />
+            </Button>
             <Button
               variant="tertiary"
               className="me-1"
