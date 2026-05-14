@@ -266,7 +266,7 @@ jobSchema.statics.getPagination = async function(params) {
         totalPage: 0
     }
 
-    if (paginationRes & paginationRes[0]['totalRecord'] && paginationRes[0]['totalRecord'].length > 0) {
+    if (paginationRes && paginationRes[0]['totalRecord'] && paginationRes[0]['totalRecord'].length > 0) {
         const totalRecordData = paginationRes[0]['totalRecord'][0]['count'];
 
         paginationObj = {
