@@ -39,9 +39,11 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ mode }) => {
 
   const isEdit = mode === "edit";
 
+  const todayDate = new Date();
+
   const [formInputData, setFormInputData] = useState<any>({
     role: "",
-    appliedDate: "",
+    appliedDate: `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`,
     companyName: "",
     companyRegNum: "",
     jobRequirement: "",
@@ -74,7 +76,6 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ mode }) => {
     if (!jobID) return;
     getJobItem(jobID, (data) => {
       const item = data?.item || data || null;
-      console.log("test: ", snakeToForm(item));
       setFormInputData((prev) => ({ ...prev, ...snakeToForm(item) }));
     });
   }, [isEdit, jobID]);

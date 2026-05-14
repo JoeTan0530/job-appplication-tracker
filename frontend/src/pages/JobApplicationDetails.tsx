@@ -145,14 +145,18 @@ const JobApplicationDetails: React.FC = () => {
           <h3 className="page-sub-title mb-0">jobID: {jobID}</h3>
         </Col>
         <Col xs={12} md={4} lg={3} className="d-flex justify-content-center justify-content-md-end align-items-end mt-3 mt-md-0">
-          <Button variant="primary" className="me-2" onClick={() => triggerNotification()}>
-            <FontAwesomeIcon icon={faBell} className="btn-icon" />
-            <span>Notify</span>
-          </Button>
-          <Button variant="primary" onClick={() => navigate(`/jobs/${jobID}/edit`)}>
-            <FontAwesomeIcon icon={faPenToSquare} className="btn-icon" />
-            <span>Edit</span>
-          </Button>
+          <span className="custom-btn-span me-2">
+            <Button variant="primary" className="custom-details-btn" onClick={() => triggerNotification()}>
+              <FontAwesomeIcon icon={faBell} className="btn-icon" />
+              <span>Notify</span>
+            </Button>
+          </span>
+          <span className="custom-btn-span">
+            <Button variant="primary" className="custom-details-btn" onClick={() => navigate(`/jobs/${jobID}/edit`)}>
+              <FontAwesomeIcon icon={faPenToSquare} className="btn-icon" />
+              <span>Edit</span>
+            </Button>
+          </span>
         </Col>
       </Row>
 

@@ -15,11 +15,14 @@ export const getStatusList = (callback) => {
   apiCaller("POST", params, callback);
 };
 
-export const getJobAppList = (callback) => {
+export const getJobAppList = (pageNum, callback) => {
   const params = {
     url: getJobApiUrl(),
     urlParams: {
       command: "getJobAppList",
+      params: {
+        page: pageNum
+      }
     },
   };
 

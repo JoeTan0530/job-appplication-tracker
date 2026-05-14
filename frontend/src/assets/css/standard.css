@@ -618,8 +618,9 @@ button.header-btn.sidebar-btn:focus {
 	top: 50%;
 	width: 100%;
 	height: 100%;
-	display: blocked;
+	display: block;
 	transition: 0.2s ease-in;
+	z-index: 1000;
 }
 
 .sidebar-container.closed-sidebar {

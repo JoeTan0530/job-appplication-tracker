@@ -17,11 +17,14 @@ const JobApplicationList: React.FC = () => {
 
   const [rawList, setRawList] = useState([]);
   const [statusMap, setStatusMap] = useState<any>({});
+  const [pagination, setPagination] = useState({});
 
-  const refreshList = useCallback(() => {
-    getJobAppList((data) => {
+  const refreshList = useCallback((pageNum = 1) => {
+    getJobAppList(pageNum, (data) => {
       const list = data?.listing || data || [];
       setRawList(Array.isArray(list) ? list : []);
+      const paginationData = data?.pagination || {};
+      setPagination(paginationData);
     });
   }, []);
 
@@ -175,6 +178,8 @@ const JobApplicationList: React.FC = () => {
           listingData={rawList}
           columns={columns}
           listingCss={listCss}
+          pagingData={pagination}
+          pagingFunction={refreshList}
           emptyTitle="No job applications yet"
           emptySubtitle="Click “Add application” to create your first record"
         />

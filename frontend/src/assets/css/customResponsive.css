@@ -1,0 +1,21 @@
+/*Ipad Pro view*/
+@media (min-width: 991px) and (max-width: 1199px) {
+
+}
+
+/*Ipad view*/
+@media (min-width: 768px) and (max-width: 990px) {
+	
+}
+
+/*Mobile view*/
+@media (min-width: 320px) and (max-width: 767px) {
+	.custom-btn-span {
+		display: inline-block;
+		width: 50%;
+	}
+
+	.btn.custom-details-btn {
+		width: 100%;
+	}
+}
