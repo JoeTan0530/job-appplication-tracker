@@ -22,6 +22,9 @@ This is a simple web app that can be use to track job applications user had adde
 |`REACT_APP_QUERY_URL`| Default Backend URL | **Yes** | - |
 |`REACT_APP_QUERY_URL_JOB`| Backend URL specified to the job route | No | - |
 
+## Documentation
+https://docs.google.com/document/d/1TAsh-toSCe-FiXjw7AcX9bqbddpgs0OFgxt5xaUvSOM/edit?usp=sharing
+
 ## Installation
 ````bash
 git clone [This repo clone URL]
@@ -31,6 +34,3 @@ npm run dev
 cd [your-project-folder]/frontend
 npm install
 npm start
-
-## Documentation
-https://docs.google.com/document/d/1TAsh-toSCe-FiXjw7AcX9bqbddpgs0OFgxt5xaUvSOM/edit?usp=sharing
