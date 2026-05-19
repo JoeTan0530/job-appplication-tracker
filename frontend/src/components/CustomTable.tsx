@@ -23,7 +23,8 @@ interface CustomTableProps {
 	columns?: CustomTableColumn[],
 	listingCss?: {},
 	emptyTitle?: string,
-	emptySubtitle?: string
+	emptySubtitle?: string,
+	loadingState?: boolean
 }
 
 const CustomTable: React.FC<CustomTableProps> = (props) => {
@@ -37,7 +38,10 @@ const CustomTable: React.FC<CustomTableProps> = (props) => {
 		pagingData,
 		pagingFunction,
 		emptyTitle = "No records found",
-		emptySubtitle = "Add your first item to get started"
+		emptySubtitle = "Add your first item to get started",
+		loadingDelayedTime = 1,
+		showLoading = false,
+		loadingState = false
 	} = props;
 
 	const tableID = listingID || `defaultListID${document.getElementsByClassName("listing-table-container").length}`;
@@ -80,7 +84,14 @@ const CustomTable: React.FC<CustomTableProps> = (props) => {
 		? effectiveColumns.map((c) => c.header)
 		: (verifyIsArrayItem(thArray) ? thArray : null);
 
-	if (verifyIsArrayItem(listingData) && (effectiveColumns || effectiveHeaders)) {
+	if (loadingState) {
+		return (
+			<div className="listing-table-no-data-container">
+				<div className="table-component-loader mb-3"></div>
+				<div className="text-center font-size-md font-weight-bold primary-text-color mb-1">Loading data...</div>
+			</div>
+		);
+	} else if (!loadingState && verifyIsArrayItem(listingData) && (effectiveColumns || effectiveHeaders)) {
 		return (
 			<>
 				<div className="listing-table-container">

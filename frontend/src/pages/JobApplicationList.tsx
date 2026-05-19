@@ -18,13 +18,23 @@ const JobApplicationList: React.FC = () => {
   const [rawList, setRawList] = useState([]);
   const [statusMap, setStatusMap] = useState<any>({});
   const [pagination, setPagination] = useState({});
+  const [loadingState, setLoadingState] = useState(true);
+
+  /* This is used because needed a gloabl variable to hold the current list of data for display use for button functions. */
+  let dataList = [];
 
   const refreshList = useCallback((pageNum = 1) => {
+    setLoadingState(true);
+
     getJobAppList(pageNum, (data) => {
       const list = data?.listing || data || [];
       setRawList(Array.isArray(list) ? list : []);
+      dataList = Array.isArray(list) ? list : [];
       const paginationData = data?.pagination || {};
       setPagination(paginationData);
+      setTimeout(() => {
+        setLoadingState(false);
+      }, 500);
     });
   }, []);
 
@@ -44,12 +54,26 @@ const JobApplicationList: React.FC = () => {
   }, [statusMap, refreshList]);
 
   const triggerDelete = useCallback(async (jobID) => {
+    const jobItem = dataList.find((items) => {
+      return items.jobID === jobID;
+    });
+
     const ok = await showConfirmModal({
       title: "Delete application",
       message: (
-        <div>
-          This will permanently remove the job application <b>#{jobID}</b>.
-        </div>
+        <>
+          <div className="mb-3">
+            This will permanently remove the job application.
+          </div>
+          <div className="row mb-2 mb-md-1">
+            <div className="col-12 col-md-4">Role:</div>
+            <div className="col-12 col-md-8 font-weight-thick">{jobItem.role}</div>
+          </div>
+          <div className="row">
+            <div className="col-12 col-md-4">Company Name:</div>
+            <div className="col-12 col-md-8 font-weight-thick">{jobItem.company_name}</div>
+          </div>
+        </>
       ),
       confirmText: "Delete",
       cancelText: "Cancel",
@@ -182,6 +206,7 @@ const JobApplicationList: React.FC = () => {
           pagingFunction={refreshList}
           emptyTitle="No job applications yet"
           emptySubtitle="Click “Add application” to create your first record"
+          loadingState={loadingState}
         />
       </div>
     </>

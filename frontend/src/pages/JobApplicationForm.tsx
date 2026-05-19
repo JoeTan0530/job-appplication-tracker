@@ -220,7 +220,7 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ mode }) => {
           <Col xs={12} md={6}>
             <Form.Group className="form-group" controlId="salary">
               <Form.Label>Salary</Form.Label>
-              <Form.Control type="text" value={formInputData.salary} onChange={updateFormInput} />
+              <Form.Control type="number" value={formInputData.salary} onChange={updateFormInput} />
             </Form.Group>
           </Col>
           <Col xs={12}>

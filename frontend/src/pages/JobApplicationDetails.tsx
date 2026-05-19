@@ -142,7 +142,7 @@ const JobApplicationDetails: React.FC = () => {
       <Row className="justify-content-between align-items-end mb-3">
         <Col xs={12} md={8} lg={9}>
           <h1 className="page-title mb-0">Application details</h1>
-          <h3 className="page-sub-title mb-0">jobID: {jobID}</h3>
+          <h3 className="page-sub-title mb-0">Company Name: {job.company_name ? job.company_name : "-"}</h3>
         </Col>
         <Col xs={12} md={4} lg={3} className="d-flex justify-content-center justify-content-md-end align-items-end mt-3 mt-md-0">
           <span className="custom-btn-span me-2">

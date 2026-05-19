@@ -122,6 +122,7 @@
 	--table-listing-border-radius: 10px;
 	--table-box-shadow: 0px 0px 4px -1px rgba(0,0,0,0.75);
 	--table-listing-outer-border-radius: 10px;
+	--table-loading-component-color: linear-gradient(#000 0 0);
 }
 
 html,
@@ -924,7 +925,26 @@ table.listing-table > tbody > tr:last-child > td:last-child {
 
 table.listing-table > tbody > tr:last-child > td {
 	border-bottom: unset;
-}	
+}
+
+.table-component-loader {
+	width: 45px;
+	aspect-ratio: 1;
+	--c: no-repeat var(--table-loading-component-color);
+	background: 
+	var(--c) 0%   50%,
+	var(--c) 50%  50%,
+	var(--c) 100% 50%;
+	background-size: 20% 100%;
+	animation: tableLoadingAnimation 1s infinite linear;
+}
+@keyframes tableLoadingAnimation {
+	0%  {background-size: 20% 100%,20% 100%,20% 100%}
+	33% {background-size: 20% 10% ,20% 100%,20% 100%}
+	50% {background-size: 20% 100%,20% 10% ,20% 100%}
+	66% {background-size: 20% 100%,20% 100%,20% 10% }
+	100%{background-size: 20% 100%,20% 100%,20% 100%}
+}
 /* End of table css */
 
 /* Start of reusable text utilities */
