@@ -23,10 +23,10 @@ This is a simple web app that can be use to track job applications user had adde
 |`REACT_APP_QUERY_URL_JOB`| Backend URL specified to the job route | No | - |
 
 ## Installation
-git clone [This repo clone URL]
-cd [your-project-folder]/backend
-npm install
-npm run dev
-cd [your-project-folder]/frontend
-npm install
-npm start
+git clone [This repo clone URL];
+cd [your-project-folder]/backend;
+npm install;
+npm run dev;
+cd [your-project-folder]/frontend;
+npm install;
+npm start;
